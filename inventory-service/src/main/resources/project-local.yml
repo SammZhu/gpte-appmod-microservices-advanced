@@ -20,3 +20,8 @@ swarm:
 store:
   service:
     url: http://mock.store.service
+hystrix:
+  inventory:
+    groupKey: InventoryGroup
+    circuitBreaker:
+      requestVolumeThreshold: 10

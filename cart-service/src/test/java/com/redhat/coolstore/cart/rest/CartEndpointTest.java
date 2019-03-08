@@ -32,6 +32,8 @@ import org.keycloak.jose.jws.Algorithm;
 import org.keycloak.jose.jws.JWSBuilder;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.util.TokenUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,11 +47,13 @@ import com.redhat.coolstore.cart.service.CatalogService;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CartEndpointTest {
+	private Logger logger = LoggerFactory.getLogger(CartEndpointTest.class);
 
     @LocalServerPort
     private int port;
@@ -63,6 +67,7 @@ public class CartEndpointTest {
     @Before
     public void beforeTest() throws Exception {
         RestAssured.baseURI = String.format("http://localhost:%d/cart", port);
+        logger.info("RestAssured.baseURI:{}",RestAssured.baseURI);
         ReflectionTestUtils.setField(catalogService, null, "catalogServiceUrl", "http://localhost:" + wireMockRule.port(), null);
         initWireMockServer();
     }
@@ -114,9 +119,9 @@ public class CartEndpointTest {
     public void addExistingItemToCart() throws Exception {
 
     	RestAssured.given()
-        .auth().oauth2(getValidAccessToken("coolstore")).post("/{cartId}/{itemId}/{quantity}", "345678", "111111", new Integer(1));
+    	        .auth().oauth2(getValidAccessToken("coolstore")).post("/{cartId}/{itemId}/{quantity}", "345678", "111111", new Integer(1));
     	RestAssured.given()
-        .auth().oauth2(getValidAccessToken("coolstore")).post("/{cartId}/{itemId}/{quantity}", "345678", "111111", new Integer(1))
+    	        .auth().oauth2(getValidAccessToken("coolstore")).post("/{cartId}/{itemId}/{quantity}", "345678", "111111", new Integer(1))
             .then()
             .assertThat()
             .statusCode(200)

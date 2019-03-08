@@ -97,7 +97,8 @@ public class RestApiTest {
     @RunAsClient
     public void testGetInventoryWithStoreStatus() throws Exception {
         WebTarget target = client.target("http://localhost:" + port).path("/inventory").path("/123456").queryParam("storeStatus", true);
-        Response response = target.request(MediaType.APPLICATION_JSON).get();
+        Response response = target.request(MediaType.APPLICATION_JSON)
+        		.header("Authorization", "Bearer " + getValidAccessToken("coolstore")).get();
         assertThat(response.getStatus(), equalTo(new Integer(200)));
         JsonObject value = Json.parse(response.readEntity(String.class)).asObject();
         assertThat(value.getString("itemId", null), equalTo("123456"));
@@ -108,17 +109,28 @@ public class RestApiTest {
 
     @Test
     @RunAsClient
-    public void testGetInventorWhenItemIdDoesNotExist() throws Exception {
+    public void testGetInventoryWhenItemIdDoesNotExist() throws Exception {
         WebTarget target = client.target("http://localhost:" + port).path("/inventory").path("/doesnotexist");
-        Response response = target.request(MediaType.APPLICATION_JSON).get();
+        Response response = target.request(MediaType.APPLICATION_JSON)
+        		.header("Authorization", "Bearer " + getValidAccessToken("coolstore")).get();
         assertThat(response.getStatus(), equalTo(new Integer(404)));
+    }
+    
+    @Test
+    @RunAsClient
+    public void testInventoryError() throws Exception {
+        WebTarget target = client.target("http://localhost:" + port).path("/inventory").path("/error");
+        Response response = target.request(MediaType.APPLICATION_JSON)
+        		.header("Authorization", "Bearer " + getValidAccessToken("coolstore")).get();
+        assertThat(response.getStatus(), equalTo(new Integer(503)));
     }
     
     @Test
     @RunAsClient
     public void testHealthCheck() throws Exception {
         WebTarget target = client.target("http://localhost:" + port).path("/health");
-        Response response = target.request(MediaType.APPLICATION_JSON).get();
+        Response response = target.request(MediaType.APPLICATION_JSON)
+        		.header("Authorization", "Bearer " + getValidAccessToken("coolstore")).get();
         assertThat(response.getStatus(), equalTo(new Integer(200)));
         JsonObject value = Json.parse(response.readEntity(String.class)).asObject();
         assertThat(value.getString("outcome", ""), equalTo("UP"));

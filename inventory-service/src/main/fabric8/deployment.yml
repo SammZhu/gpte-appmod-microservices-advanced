@@ -36,7 +36,7 @@ spec:
               mountPath: /app/rhsso-config
           env:
             - name: JAVA_OPTIONS
-              value: "-Dswarm.project.stage.file=file:///app/config/project-defaults.yml -Dswarm.keycloak.json.path=/app/rhsso-config/keycloak.json"
+              value: "-Dswarm.project.stage.file=file:///app/config/project-defaults.yml -Dswarm.keycloak.json.path=/app/rhsso-config/keycloak.json -Dcom.redhat.coolstore.inventory.service.StoreStatusService/storeStatus/CircuitBreaker/requestVolumeThreshold=4 -Dcom.redhat.coolstore.inventory.service.StoreStatusService/storeStatus/CircuitBreaker/requestVolumeThreshold=2 -Dcom.redhat.coolstore.inventory.service.StoreStatusService/storeStatus/CircuitBreaker/failureRatio=1 -Dcom.redhat.coolstore.inventory.service.StoreStatusService/storeStatus/Timeout/value=250"
             - name: GC_MAX_METASPACE_SIZE
               value: '200'
       volumes:

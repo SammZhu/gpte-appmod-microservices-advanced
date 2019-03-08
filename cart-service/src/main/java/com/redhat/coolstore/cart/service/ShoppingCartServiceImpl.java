@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import com.redhat.coolstore.cart.model.ShoppingCartItem;
 
 @Component
 public class ShoppingCartServiceImpl implements ShoppingCartService {
+	private Logger logger = LoggerFactory.getLogger(ShoppingCartServiceImpl.class);
 
     @Autowired
     private CatalogService catalogService;
@@ -42,15 +45,18 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCart addToCart(String cartId, String itemId, int quantity) {
+    	logger.info("-----addToCart-----{}:{}:{}",new String[] {cartId,itemId,Integer.toString(quantity)});
         ShoppingCart sc = getShoppingCart(cartId);
         if (quantity <= 0) {
             return sc;
         }
-        Product product;
+        logger.info("-----addToCart---ShoppingCart-----{}:{}:{}",new String[] {sc.getId(),Double.toString(sc.getCartTotal()),Double.toString(sc.getCartTotal())});
+        Product product=null;
         product = getProduct(itemId);
         if (product == null) {
             return sc;
         }
+        logger.info("-----addToCart---getProduct-----{}:{}:{}",new String[] {product.getItemId(),product.getName(),Double.toString(product.getPrice())});
         Optional<ShoppingCartItem> cartItem = sc.getShoppingCartItemList().stream().filter(sci -> sci.getProduct().getItemId().equals(itemId)).findFirst();
         if (cartItem.isPresent()) {
             cartItem.get().setQuantity(cartItem.get().getQuantity() + quantity);

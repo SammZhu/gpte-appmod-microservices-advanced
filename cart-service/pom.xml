@@ -14,6 +14,7 @@
     <version.fabric8-maven-plugin>3.5.28</version.fabric8-maven-plugin>
     <version.cxf>3.2.0</version.cxf>
     <version.spring-cloud-kubernetes>0.2.0.RELEASE</version.spring-cloud-kubernetes>
+    <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -69,6 +70,21 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-hystrix</artifactId>
+      <version>1.4.3.RELEASE</version>
+    </dependency>
+    <dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+		<version>${slf4jVersion}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>${slf4jVersion}</version>
+	</dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>
