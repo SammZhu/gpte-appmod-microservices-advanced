@@ -14,6 +14,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.opentracing.ClientTracingRegistrar;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.KeycloakSecurityContext;
 import org.wildfly.swarm.keycloak.deployment.KeycloakSecurityContextAssociation;
@@ -55,9 +56,18 @@ public class StoreStatusService {
     }
 
 
-    @PostConstruct
+/*    @PostConstruct
     public void init() {
         storeService = ((ResteasyClientBuilder)ClientBuilder.newBuilder())
+                .connectionPoolSize(10).build().target(storeUrl).path("store/status").path("{store}");
+    }*/
+    
+    
+    @PostConstruct
+    public void init() {
+        ResteasyClientBuilder clientBuilder = (ResteasyClientBuilder)ClientBuilder.newBuilder();
+        ClientTracingRegistrar.configure(clientBuilder);
+        storeService = clientBuilder
                 .connectionPoolSize(10).build().target(storeUrl).path("store/status").path("{store}");
     }
     

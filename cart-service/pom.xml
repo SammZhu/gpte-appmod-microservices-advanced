@@ -14,7 +14,6 @@
     <version.fabric8-maven-plugin>3.5.28</version.fabric8-maven-plugin>
     <version.cxf>3.2.0</version.cxf>
     <version.spring-cloud-kubernetes>0.2.0.RELEASE</version.spring-cloud-kubernetes>
-    <slf4jVersion>1.6.1</slf4jVersion>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -75,16 +74,26 @@
       <artifactId>spring-cloud-starter-hystrix</artifactId>
       <version>1.4.3.RELEASE</version>
     </dependency>
+     <dependency>
+      <groupId>io.opentracing.contrib</groupId>
+      <artifactId>opentracing-spring-web</artifactId>
+      <version>0.3.0</version>
+    </dependency>
     <dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-api</artifactId>
-		<version>${slf4jVersion}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-simple</artifactId>
-		<version>${slf4jVersion}</version>
-	</dependency>
+      <groupId>io.opentracing.contrib</groupId>
+      <artifactId>opentracing-web-servlet-filter</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentracing</groupId>
+      <artifactId>opentracing-api</artifactId>
+      <version>0.31.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jaegertracing</groupId>
+      <artifactId>jaeger-core</artifactId>
+      <version>0.27.0</version>
+    </dependency>	
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock-standalone</artifactId>

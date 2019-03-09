@@ -14,6 +14,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.redhat.coolstore.cart.model.Product;
+import com.redhat.coolstore.cart.tracing.JaegerTracingConfiguration;
+import com.redhat.coolstore.cart.tracing.TracingRestHandlerInterceptor;
+
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 
 @Component
 public class CatalogServiceImpl implements CatalogService {
@@ -24,6 +29,8 @@ public class CatalogServiceImpl implements CatalogService {
     
     @Autowired
     private KeycloakClientRequestFactory keycloakClientRequestFactory;
+    
+    private Tracer tracer = GlobalTracer.get();
 
     //@HystrixCommand(commandKey = "CatalogService", fallbackMethod = "getFallbackProduct")
     /*@HystrixCommand(commandKey = "CatalogService", groupKey = "testGroup", threadPoolKey = "testThreadKey",
@@ -41,6 +48,9 @@ public class CatalogServiceImpl implements CatalogService {
     public Product getProduct(String itemId) {
         //RestTemplate restTemplate = new RestTemplate();
     	RestTemplate restTemplate = new KeycloakRestTemplate(keycloakClientRequestFactory);
+        TracingRestHandlerInterceptor interceptor = new TracingRestHandlerInterceptor(tracer);
+        restTemplate.getInterceptors().add(interceptor);
+    	
     	return call(itemId, restTemplate);
         /*ResponseEntity<Product> entity;
         try {

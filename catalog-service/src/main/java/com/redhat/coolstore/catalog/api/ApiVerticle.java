@@ -5,6 +5,11 @@ import java.util.List;
 import com.redhat.coolstore.catalog.model.Product;
 import com.redhat.coolstore.catalog.verticle.service.CatalogService;
 
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.vertx.ext.web.TracingHandler;
+import io.opentracing.tag.Tags;
+import io.opentracing.util.GlobalTracer;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.AbstractVerticle;
@@ -27,6 +32,7 @@ public class ApiVerticle extends AbstractVerticle {
     private CatalogService catalogService;
     private JWTAuth jwtAuth;
     private CircuitBreaker circuitBreaker;
+    private Tracer tracer;
     
 
     public ApiVerticle(CatalogService catalogService,JWTAuth jwtAuth) {
@@ -37,9 +43,13 @@ public class ApiVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
     	
-    	AuthHandler authHandler = JWTAuthHandler.create(jwtAuth).addAuthority("coolstore");
-    	
+        tracer = GlobalTracer.get();
         Router router = Router.router(vertx);
+        TracingHandler handler = new TracingHandler(tracer);
+        router.route().order(-1).handler(handler).failureHandler(handler);
+    	
+    	AuthHandler authHandler = JWTAuthHandler.create(jwtAuth).addAuthority("coolstore");
+        //Router router = Router.router(vertx);
         router.route().pathRegex("/product.*").handler(authHandler);
         router.get("/products").handler(this::getProducts);
         router.get("/product/:itemId").handler(this::getProduct);
@@ -89,8 +99,14 @@ public class ApiVerticle extends AbstractVerticle {
     }*/
     
     private void getProducts(RoutingContext rc) {
+        Span span = tracer.buildSpan("getProducts")
+                .asChildOf(TracingHandler.serverSpanContext(rc))
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+                .startManual();
+    	
     	JsonArray json = new JsonArray();
     	circuitBreaker.<JsonObject>execute(future -> catalogService.getProducts(ar -> {
+    		span.finish();
             if (ar.succeeded()) {
                 List<Product> products = ar.result();
                 products.stream()
@@ -130,8 +146,14 @@ public class ApiVerticle extends AbstractVerticle {
     }*/
     
     private void getProduct(RoutingContext rc) {
+        Span span = tracer.buildSpan("getProduct")
+                .asChildOf(TracingHandler.serverSpanContext(rc))
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+                .startManual();
+    	
         String itemId = rc.request().getParam("itemid");
         circuitBreaker.<JsonObject>execute(future -> catalogService.getProduct(itemId, ar -> {
+        	span.finish();
             if (ar.succeeded()) {
                 Product product = ar.result();
                 JsonObject json = null;
@@ -156,8 +178,14 @@ public class ApiVerticle extends AbstractVerticle {
     }
 
     private void addProduct(RoutingContext rc) {
+        Span span = tracer.buildSpan("addProduct")
+                .asChildOf(TracingHandler.serverSpanContext(rc))
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+                .startManual();
+    	
         JsonObject json = rc.getBodyAsJson();
         catalogService.addProduct(new Product(json), ar -> {
+        	span.finish();
             if (ar.succeeded()) {
                 rc.response().setStatusCode(201).end();
             } else {
